@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>测试页面</title>
+    <style>
+    </style>
+</head>
+<body>
+    <div id="demo">
+        <p v-model="message"></p>
+        <p v-model="select"></p>
+        <p v-model="radio"></p>
+        <p v-model="checkbox"></p>
+        <input v-model="message" type="text">
+        <textarea v-model="message"></textarea>
+        <select v-model="select"><option value="1">11</option><option value="2">22</option></select>
+        <input v-model="radio" name="sex" type="radio" value="男"> 男
+        <input v-model="radio" name="sex" type="radio" value="女"> 女
+        <input v-model="checkbox" type="checkbox" value="多选1"> 多选1
+        <input v-model="checkbox" type="checkbox" value="多选2"> 多选2
+
+        <div v-repeat="arr">
+            <script type="text/html">
+                <li>{v.id}</li>
+            </script>
+        </div>
+
+    </div>
+
+    <script src="sheBind.js"></script>
+    <script>
+        var demo = new sheBind({
+            el: '#demo',
+            data: {
+                message: 'Hello bind.js!',
+                select: "2",
+                checkbox: "多选1,多选2",
+                radio: "女",
+                arr:[{id:1}, {id:2}]
+            }
+        });
+
+        setTimeout(function() {
+            // demo.data.message = "男";
+            // demo.data.radio = "男";
+            // demo.data.select = "1";
+            // demo.data.checkbox = "多选1";
+            demo.data.arr = [{id:14}, {id:5}];
+        }, 1000);
+    </script>
+</body>
+</html>
