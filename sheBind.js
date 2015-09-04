@@ -137,6 +137,17 @@
                 });
             };
 
+        // Object.observe(obj.data, function(changes) {
+        //     console.log(changes);
+        //     changes.forEach(function(v){
+        //         fnChange(v.name, v.object[v.name]);
+        //     });
+        // });
+        result.data = new Observe().creat(obj.data).on("change", function(name, val){
+            fnChange(name, val);
+        });
+
+
         modelArr.forEach(function(s){
             var name = s.getAttribute("v-model");
             s["_name"] = name;
@@ -147,12 +158,14 @@
                 if ( s.type === "text") {
                     s.addEventListener("input", function(){
                         nowInputDom = s;
-                        obj.data[name] = s.value;
+                        result.data.changeKey(name, s.value);
+                        // obj.data[name] = s.value;
                     });
                 } else if (s.type === "radio") {
                     s.addEventListener("change", function(){
                         nowInputDom = s;
-                        obj.data[name] = s.value;
+                        result.data.changeKey(name, s.value);
+                        // obj.data[name] = s.value;
                     });
                 } else if ( s.type === "checkbox" ) {
                     s.addEventListener("change", function(){
@@ -161,24 +174,29 @@
                         if ( s.getAttribute("checked") ) {
                             s.removeAttribute("checked");
                             var arr = (obj.data[name] !== "" ? obj.data[name].split(",") : []).filter(function(v){ return v !== s.value; });
-                            obj.data[name] = (arr.length > 0 ) ? arr.join(",") : "";
+                            // obj.data[name] = (arr.length > 0 ) ? arr.join(",") : "";
+                            result.data.changeKey(name, (arr.length > 0 ) ? arr.join(",") : "");
+
                         } else {
                             s.setAttribute("checked", "checked");
                             var arr = (obj.data[name] !== "") ? obj.data[name].split(",") : [];
                             arr.push(s.value);
-                            obj.data[name] = (arr.length > 0 ) ? arr.join(",") : "";
+                            // obj.data[name] = (arr.length > 0 ) ? arr.join(",") : "";
+                            result.data.changeKey(name, (arr.length > 0 ) ? arr.join(",") : "");
                         }
                     });
                 }
             } else if (s.nodeName === "TEXTAREA"){
                 s.addEventListener("input", function(){
                     nowInputDom = s;
-                    obj.data[name] = s.value;
+                    result.data.changeKey(name, s.value);
+                    // obj.data[name] = s.value;
                 });
             } else if (s.nodeName === "SELECT"){
                 s.addEventListener("change", function(){
                     nowInputDom = s;
-                    obj.data[name] = s.value;
+                    result.data.changeKey(name, s.value);
+                    // obj.data[name] = s.value;
                 });
             }
         });
@@ -192,15 +210,6 @@
 
         });
 
-        // Object.observe(obj.data, function(changes) {
-        //     console.log(changes);
-        //     changes.forEach(function(v){
-        //         fnChange(v.name, v.object[v.name]);
-        //     });
-        // });
-        result.data = new Observe().creat(obj.data).on("change", function(name, val){
-            fnChange(name, val);
-        });
 
         return result;
     };
