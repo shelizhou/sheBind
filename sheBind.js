@@ -10,6 +10,58 @@
     
     "use strict";
 
+    var Observe = function () {
+        var result = {},
+            handlers = {},
+            _v;
+
+        result.on = function(type, handler) {
+            if (typeof handlers[type] == 'undefined') {
+                handlers[type] = [];
+            }
+            handlers[type].push(handler);
+
+            return result;
+        };
+
+        function fire(type) {
+            var data = Array.prototype.slice.call(arguments, 1);
+            if (handlers[type] instanceof Array) {
+                var handl = handlers[type];
+                for (var i = 0, len = handl.length; i < len; i++) {
+                    handl[i].apply(result, data);
+                }
+            }
+            return result;
+        };
+
+        result.creat = function(v) {
+            _v = v;
+            return result;
+        }
+
+        result.change = function(o) {
+            for( var key in o ) {
+                if (!o.hasOwnProperty[key]) {
+                    if (_v[key] !== o[key]) {
+                        result.changeKey(key, o[key]);
+                    }
+                }
+            }
+        }
+
+        result.changeKey = function(name, v){
+            if (_v[name] !== v ) {
+                _v[name] = v;
+                fire("change", name, v);
+            }
+
+            return result;
+        }
+
+        return result;
+    }
+
     var sheBind = function(obj) {
         // 返回对象
         if (!(this instanceof sheBind)) {
@@ -17,7 +69,7 @@
         }
 
         var result = {
-                data : obj.data
+                data : {}
             },
             wrapSel = document.querySelector(obj.el),
             modelArr = Array.prototype.slice.call(wrapSel.querySelectorAll("[v-model]")),
@@ -140,13 +192,15 @@
 
         });
 
-        Object.observe(obj.data, function(changes) {
-            // console.log(changes);
-            changes.forEach(function(v){
-                fnChange(v.name, v.object[v.name]);
-            });
+        // Object.observe(obj.data, function(changes) {
+        //     console.log(changes);
+        //     changes.forEach(function(v){
+        //         fnChange(v.name, v.object[v.name]);
+        //     });
+        // });
+        result.data = new Observe().creat(obj.data).on("change", function(name, val){
+            fnChange(name, val);
         });
-
 
         return result;
     };

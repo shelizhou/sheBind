@@ -41,12 +41,13 @@
             }
         });
 
+
         setTimeout(function() {
-            // demo.data.message = "男";
-            // demo.data.radio = "男";
-            // demo.data.select = "1";
-            // demo.data.checkbox = "多选1";
-            demo.data.arr = [{id:14}, {id:5}];
+            demo.data.change({
+                message:"222",
+                arr:[{id:14},{id:14},{id:14},{id:14}]
+            })
+            // demo.data.changeKey("message", "nan")
         }, 1000);
     </script>
 </body>
