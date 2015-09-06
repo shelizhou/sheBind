@@ -55,7 +55,12 @@
                 _v[name] = v;
                 fire("change", name, v);
             }
+            return result;
+        }
 
+        result.addArray = function(name, v) {
+            _v[name].push(v);
+            fire("addArray", name, v);
             return result;
         }
 
@@ -73,23 +78,22 @@
             },
             wrapSel = document.querySelector(obj.el),
             modelArr = Array.prototype.slice.call(wrapSel.querySelectorAll("[v-model]")),
-            repeatArr = Array.prototype.slice.call(wrapSel.querySelectorAll("[v-repeat]")),
+            repeatArr = Array.prototype.slice.call(wrapSel.querySelectorAll("[v-template]")),
             nowInputDom = null,
+            tmpl = function(html, data) {
+                var result="var p=[];with(obj){p.push('"
+                    +html.replace(/[\r\n\t]/g," ")
+                    .replace(/<%=(.*?)%>/g,"');p.push($1);p.push('")
+                    .replace(/<%/g,"');")
+                    .replace(/%>/g,"p.push('")
+                    +"');}return p.join('');";
+                var fn = new Function("obj",result);
+                return fn(data);
+            },
             setRepeat = function(s) {
                 var name = s["_name"],
-                    tempHtml = s["_tempHtml"],
-                    html = "";
-                obj.data[name].forEach(function(v){
-                    var k = {v : v};
-                    html += tempHtml.replace(/\{(.+)\}/g, function(all, $1){
-                        var mi = $1, vi = k;
-                        mi.split(".").forEach(function(m){
-                            vi = vi[m];
-                        })
-                        return vi || "";
-                    });
-                });
-                s.innerHTML = html;
+                    tempHtml = s["_tempHtml"];
+                s.innerHTML = tmpl(tempHtml, {_v: obj.data[name]});
             },
             setModel = function(s, val) {
                 if (s === nowInputDom) {
@@ -143,8 +147,16 @@
         //         fnChange(v.name, v.object[v.name]);
         //     });
         // });
-        result.data = new Observe().creat(obj.data).on("change", function(name, val){
+        result.data = new Observe().creat(obj.data);
+        result.data.on("change", function(name, val){
             fnChange(name, val);
+        });
+        result.data.on("addArray", function(name, val){
+            repeatArr.forEach(function(s){
+                if (s["_name"] === name){
+                    s.innerHTML += tmpl(s["_tempHtml"], {_v: [val]});
+                }
+            });
         });
 
 
@@ -202,7 +214,7 @@
         });
 
         repeatArr.forEach(function(s){
-            s["_name"] = s.getAttribute("v-repeat");
+            s["_name"] = s.getAttribute("v-template");
             s["_tempHtml"] = s.querySelector("script").innerHTML;
             s["_type"] = "repeat";
 

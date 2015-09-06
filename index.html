@@ -21,9 +21,11 @@
         <input v-model="checkbox" type="checkbox" value="多选1"> 多选1
         <input v-model="checkbox" type="checkbox" value="多选2"> 多选2
 
-        <div v-repeat="arr">
+        <div v-template="arr">
             <script type="text/html">
-                <li>{v.id}</li>
+                <% for(i = 0; i < _v.length; i++) {%>
+                    <li class="<% if(i) {%>on<% } %>"><%=_v[i].id%></li>
+                <%}%>
             </script>
         </div>
 
@@ -46,9 +48,10 @@
         setTimeout(function() {
             demo.data.change({
                 message:"222",
-                arr:[{id:14},{id:14},{id:14},{id:14}]
+                // arr:[{id:14},{id:14},{id:14},{id:14}]
             })
             // demo.data.changeKey("message", "nan")
+            demo.data.addArray("arr", {id:6})
         }, 1000);
     </script>
 </body>
