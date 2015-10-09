@@ -15,6 +15,14 @@
             handlers = {},
             _v;
 
+        function changeKey(name, v){
+            if (_v[name] !== v ) {
+                _v[name] = v;
+                fire("change", name, v);
+            }
+            return result;
+        }
+
         result.on = function(type, handler) {
             if (typeof handlers[type] == 'undefined') {
                 handlers[type] = [];
@@ -40,25 +48,23 @@
             return result;
         }
 
-        result.change = function(o) {
-            for( var key in o ) {
-                if (!o.hasOwnProperty[key]) {
-                    if (_v[key] !== o[key]) {
-                        result.changeKey(key, o[key]);
+        result.change = function(o, val) {
+            if (typeof o === "object") {
+                for( var key in o ) {
+                    if (!o.hasOwnProperty[key]) {
+                        if (_v[key] !== o[key]) {
+                            changeKey(key, o[key]);
+                        }
                     }
                 }
+            } else {
+                changeKey(o, val);
             }
         }
 
-        result.changeKey = function(name, v){
-            if (_v[name] !== v ) {
-                _v[name] = v;
-                fire("change", name, v);
-            }
-            return result;
-        }
 
         result.addArray = function(name, v) {
+            _v[name] = _v[name] || [];
             _v[name].push(v);
             fire("addArray", name, v);
             return result;
@@ -72,6 +78,9 @@
         if (!(this instanceof sheBind)) {
             return new sheBind(obj);
         }
+
+        if (!obj.el) return;
+        obj.data = obj.data || {};
 
         var result = {
                 data : {}
@@ -93,9 +102,10 @@
             setRepeat = function(s) {
                 var name = s["_name"],
                     tempHtml = s["_tempHtml"];
-                s.innerHTML = tmpl(tempHtml, {_v: obj.data[name]});
+                s.innerHTML = tmpl(tempHtml, {_v: obj.data[name] || []});
             },
             setModel = function(s, val) {
+                if (typeof val === "undefined") return;
                 if (s === nowInputDom) {
                     nowInputDom = null;
                     return;
