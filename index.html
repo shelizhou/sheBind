@@ -35,6 +35,7 @@
     <script>
         var demo = new sheBind({
             el: '#demo',
+            // el: document.getElementById('demo'),
             data: {
                 message: 'Hello bind.js!',
                 select: "2",
@@ -44,17 +45,17 @@
             }
         });
 
-
+        console.dir(demo);
         setTimeout(function() {
-            // demo.data.change({
+            // demo.change({
             //     message:"222",
             //     // arr:[{id:14},{id:14},{id:14},{id:14}]
             // })
-            // demo.data.change("select", "2")
-            // demo.data.change("radio", "女")
-            // demo.data.change("checkbox", "多选1")
-            // demo.data.change("message", "nan")
-            // demo.data.addArray("arr", {id:6})
+            // demo.change("select", "2")
+            // demo.change("radio", "女")
+            // demo.change("checkbox", "多选1")
+            demo.change("message", "nan")
+            demo.addArray("arr", {id:6})
         }, 1000);
     </script>
 </body>

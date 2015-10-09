@@ -81,11 +81,9 @@
 
         if (!obj.el) return;
         obj.data = obj.data || {};
-
-        var result = {
-                data : {}
-            },
-            wrapSel = document.querySelector(obj.el),
+        var result = {},
+            data = new Observe().creat(obj.data),
+            wrapSel = typeof obj.el === "string" ? document.querySelector(obj.el) : obj.el,
             modelArr = Array.prototype.slice.call(wrapSel.querySelectorAll("[v-model]")),
             repeatArr = Array.prototype.slice.call(wrapSel.querySelectorAll("[v-template]")),
             nowInputDom = null,
@@ -157,11 +155,10 @@
         //         fnChange(v.name, v.object[v.name]);
         //     });
         // });
-        result.data = new Observe().creat(obj.data);
-        result.data.on("change", function(name, val){
+        data.on("change", function(name, val){
             fnChange(name, val);
         });
-        result.data.on("addArray", function(name, val){
+        data.on("addArray", function(name, val){
             repeatArr.forEach(function(s){
                 if (s["_name"] === name){
                     s.innerHTML += tmpl(s["_tempHtml"], {_v: [val]});
@@ -180,13 +177,13 @@
                 if ( s.type === "text") {
                     s.addEventListener("input", function(){
                         nowInputDom = s;
-                        result.data.changeKey(name, s.value);
+                        data.changeKey(name, s.value);
                         // obj.data[name] = s.value;
                     });
                 } else if (s.type === "radio") {
                     s.addEventListener("change", function(){
                         nowInputDom = s;
-                        result.data.changeKey(name, s.value);
+                        data.changeKey(name, s.value);
                         // obj.data[name] = s.value;
                     });
                 } else if ( s.type === "checkbox" ) {
@@ -197,27 +194,27 @@
                             s.removeAttribute("checked");
                             var arr = (obj.data[name] !== "" ? obj.data[name].split(",") : []).filter(function(v){ return v !== s.value; });
                             // obj.data[name] = (arr.length > 0 ) ? arr.join(",") : "";
-                            result.data.changeKey(name, (arr.length > 0 ) ? arr.join(",") : "");
+                            data.changeKey(name, (arr.length > 0 ) ? arr.join(",") : "");
 
                         } else {
                             s.setAttribute("checked", "checked");
                             var arr = (obj.data[name] !== "") ? obj.data[name].split(",") : [];
                             arr.push(s.value);
                             // obj.data[name] = (arr.length > 0 ) ? arr.join(",") : "";
-                            result.data.changeKey(name, (arr.length > 0 ) ? arr.join(",") : "");
+                            data.changeKey(name, (arr.length > 0 ) ? arr.join(",") : "");
                         }
                     });
                 }
             } else if (s.nodeName === "TEXTAREA"){
                 s.addEventListener("input", function(){
                     nowInputDom = s;
-                    result.data.changeKey(name, s.value);
+                    data.changeKey(name, s.value);
                     // obj.data[name] = s.value;
                 });
             } else if (s.nodeName === "SELECT"){
                 s.addEventListener("change", function(){
                     nowInputDom = s;
-                    result.data.changeKey(name, s.value);
+                    data.changeKey(name, s.value);
                     // obj.data[name] = s.value;
                 });
             }
@@ -232,6 +229,9 @@
 
         });
 
+        result.change = data.change;
+        result.addArray = data.addArray;
+        result.data = obj.data;
 
         return result;
     };
