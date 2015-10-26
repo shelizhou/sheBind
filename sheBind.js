@@ -83,9 +83,15 @@
         obj.data = obj.data || {};
         var result = {},
             data = new Observe().creat(obj.data),
+            allDom = {},
             wrapSel = typeof obj.el === "string" ? document.querySelector(obj.el) : obj.el,
+
+            // 单个值
             modelArr = Array.prototype.slice.call(wrapSel.querySelectorAll("[v-model]")),
+
+            // 模板引擎
             repeatArr = Array.prototype.slice.call(wrapSel.querySelectorAll("[v-template]")),
+
             nowInputDom = null,
             tmpl = function(html, data) {
                 var result="var p=[];with(obj){p.push('"
@@ -96,6 +102,23 @@
                     +"');}return p.join('');";
                 var fn = new Function("obj",result);
                 return fn(data);
+            },
+
+            // 设置返回的dom，兼容jQuery
+            setAllDom = function(key, sel){
+                if (!allDom[key]) {
+                    if (typeof $ !== "undefined") {
+                        allDom[key] = $(sel);
+                    } else {
+                        allDom[key] = [sel];
+                    }
+                } else {
+                    if (typeof $ !== "undefined") {
+                        allDom[key] = allDom[key].add($(sel));
+                    } else {
+                        allDom[key].push(sel);
+                    }
+                }
             },
             setRepeat = function(s) {
                 var name = s["_name"],
@@ -149,12 +172,7 @@
                 });
             };
 
-        // Object.observe(obj.data, function(changes) {
-        //     console.log(changes);
-        //     changes.forEach(function(v){
-        //         fnChange(v.name, v.object[v.name]);
-        //     });
-        // });
+        
         data.on("change", function(name, val){
             fnChange(name, val);
         });
@@ -170,7 +188,7 @@
         modelArr.forEach(function(s){
             var name = s.getAttribute("v-model");
             s["_name"] = name;
-            s["_type"] = "model";
+            setAllDom(name, s);
             setModel(s, obj.data[name]);
 
             if (s.nodeName === "INPUT") {
@@ -223,8 +241,7 @@
         repeatArr.forEach(function(s){
             s["_name"] = s.getAttribute("v-template");
             s["_tempHtml"] = s.querySelector("script").innerHTML;
-            s["_type"] = "repeat";
-
+            setAllDom(s["_name"], s);
             setRepeat(s);
 
         });
@@ -232,6 +249,7 @@
         result.change = data.change;
         result.addArray = data.addArray;
         result.data = obj.data;
+        result.dom = allDom;
 
         return result;
     };
