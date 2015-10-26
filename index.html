@@ -24,7 +24,7 @@
         <div v-template="arr">
             <script type="text/html">
                 <% for(i = 0; i < _v.length; i++) {%>
-                    <li class="<% if(i) {%>on<% } %>"><%=_v[i].id%></li>
+                    <li class="<% if(i) {%>on<% } %>"><%=_help.ch(_v[i].id)%></li>
                 <%}%>
             </script>
         </div>
@@ -34,6 +34,9 @@
     <!-- <script src="../spa/src/js/zepto/zepto.min.js"></script> -->
     <script src="sheBind.js"></script>
     <script>
+        sheBind.prototype.onHelp("ch", function(v){
+            return v+"x";
+        });
         var demo = new sheBind({
             el: '#demo',
             // el: document.getElementById('demo'),
@@ -45,7 +48,7 @@
                 arr:[{id:1}, {id:2}]
             }
         });
-
+        
         console.dir(demo.dom);
         setTimeout(function() {
             // demo.change({

@@ -73,6 +73,7 @@
         return result;
     }
 
+
     var sheBind = function(obj) {
         // 返回对象
         if (!(this instanceof sheBind)) {
@@ -82,6 +83,7 @@
         if (!obj.el) return;
         obj.data = obj.data || {};
         var result = {},
+            _this = this,
             data = new Observe().creat(obj.data),
             allDom = {},
             wrapSel = typeof obj.el === "string" ? document.querySelector(obj.el) : obj.el,
@@ -100,8 +102,9 @@
                     .replace(/<%/g,"');")
                     .replace(/%>/g,"p.push('")
                     +"');}return p.join('');";
-                var fn = new Function("obj",result);
-                return fn(data);
+
+                var fn = new Function(["obj", "_help"],result);
+                return fn(data, _this.help);
             },
 
             // 设置返回的dom，兼容jQuery
@@ -195,13 +198,13 @@
                 if ( s.type === "text") {
                     s.addEventListener("input", function(){
                         nowInputDom = s;
-                        data.changeKey(name, s.value);
+                        data.change(name, s.value);
                         // obj.data[name] = s.value;
                     });
                 } else if (s.type === "radio") {
                     s.addEventListener("change", function(){
                         nowInputDom = s;
-                        data.changeKey(name, s.value);
+                        data.change(name, s.value);
                         // obj.data[name] = s.value;
                     });
                 } else if ( s.type === "checkbox" ) {
@@ -212,27 +215,27 @@
                             s.removeAttribute("checked");
                             var arr = (obj.data[name] !== "" ? obj.data[name].split(",") : []).filter(function(v){ return v !== s.value; });
                             // obj.data[name] = (arr.length > 0 ) ? arr.join(",") : "";
-                            data.changeKey(name, (arr.length > 0 ) ? arr.join(",") : "");
+                            data.change(name, (arr.length > 0 ) ? arr.join(",") : "");
 
                         } else {
                             s.setAttribute("checked", "checked");
                             var arr = (obj.data[name] !== "") ? obj.data[name].split(",") : [];
                             arr.push(s.value);
                             // obj.data[name] = (arr.length > 0 ) ? arr.join(",") : "";
-                            data.changeKey(name, (arr.length > 0 ) ? arr.join(",") : "");
+                            data.change(name, (arr.length > 0 ) ? arr.join(",") : "");
                         }
                     });
                 }
             } else if (s.nodeName === "TEXTAREA"){
                 s.addEventListener("input", function(){
                     nowInputDom = s;
-                    data.changeKey(name, s.value);
+                    data.change(name, s.value);
                     // obj.data[name] = s.value;
                 });
             } else if (s.nodeName === "SELECT"){
                 s.addEventListener("change", function(){
                     nowInputDom = s;
-                    data.changeKey(name, s.value);
+                    data.change(name, s.value);
                     // obj.data[name] = s.value;
                 });
             }
@@ -254,7 +257,13 @@
         return result;
     };
 
-
+    // 方法
+    sheBind.prototype.help = {};
+    sheBind.prototype.onHelp = function(name, fn) {
+        // if (!this.help[name]) {
+            this.help[name] = fn;
+        // }
+    }
 
     // 检测上下文环境是否为 AMD 或者 CMD   
     if (typeof define === 'function' && (define.amd || define.cmd)) {
