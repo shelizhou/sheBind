@@ -82,7 +82,7 @@
 
         if (!obj.el) return;
         obj.data = obj.data || {};
-        var result = {},
+        var result = this,
             _this = this,
             data = new Observe().creat(obj.data),
             allDom = {},
